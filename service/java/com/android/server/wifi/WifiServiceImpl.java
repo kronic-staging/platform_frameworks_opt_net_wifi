@@ -614,7 +614,7 @@ public class WifiServiceImpl extends IWifiManager.Stub {
         Slog.d(TAG, "setWifiEnabled: " + enable + " pid=" + Binder.getCallingPid()
                     + ", uid=" + Binder.getCallingUid());
         if(isStrictOpEnable()){
-            String packageName = mContext.getPackageManager().getNameForUid(Binder.getCallingUid());
+            packageName = mContext.getPackageManager().getNameForUid(Binder.getCallingUid());
             if((Binder.getCallingUid() > 10000) && (packageName.indexOf("android.uid.systemui") !=0)  && (packageName.indexOf("android.uid.system") != 0)) {
                 AppOpsManager mAppOpsManager  = mContext.getSystemService(AppOpsManager.class);
                 int result = mAppOpsManager.noteOp(AppOpsManager.OP_CHANGE_WIFI_STATE,Binder.getCallingUid(),packageName);
@@ -1505,7 +1505,11 @@ public class WifiServiceImpl extends IWifiManager.Stub {
                    }
                } else if ( state ==  WifiManager.WIFI_STATE_DISABLED) {
                    if (mSubSystemRestart) {
-                       setWifiEnabled(true);
+                       try {
+                           setWifiEnabled(mContext.getOpPackageName(), true);
+                       } catch (RemoteException e) {
+                           /* ignore - local call */
+                       }
                    }
                }
             } else if (action.equals(WifiManager.WIFI_AP_STATE_CHANGED_ACTION)) {
@@ -1514,7 +1518,11 @@ public class WifiServiceImpl extends IWifiManager.Stub {
                if (mSubSystemRestart) {
                    if (wifiApState == WifiManager.WIFI_AP_STATE_DISABLED) {
                        if (getWifiEnabledState() == WifiManager.WIFI_STATE_ENABLED) {
-                           setWifiEnabled(false);
+                           try {
+                               setWifiEnabled(mContext.getOpPackageName(), false);
+                           } catch (RemoteException e) {
+                               /* ignore - local call */
+                           }
                        } else {
                            /**
                             * STA in DISABLED state, hence just restart SAP.
