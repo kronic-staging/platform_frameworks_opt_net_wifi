@@ -555,13 +555,13 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiRss
     }
 
     public void setStaSoftApConcurrency() {
-       mStaAndAPConcurrency = true;
-       mSoftApStateMachine =
-               new SoftApStateMachine(mContext, this, mFacade, mInterfaceName,
-                                      mWifiConfigManager,  mWifiMonitor,
-                                      mBackupManagerProxy,
-                                      mNwService, mBatteryStats, mCountryCode);
-      logd("mSoftApStateMachine is created");
+        mSoftApStateMachine =
+            new SoftApStateMachine(mContext, this, mFacade, mInterfaceName,
+                                   mWifiConfigManager,  mWifiMonitor,
+                                   mBackupManagerProxy,
+                                   mNwService, mBatteryStats, mCountryCode);
+        mStaAndAPConcurrency = true;
+        logd("mSoftApStateMachine is created");
     }
 
 
@@ -1720,6 +1720,7 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiRss
         freqs = new HashSet<Integer>();
         if (mNumSelectiveChannelScan <  mMaxInitialSavedChannelScan) {
            freqs = mWifiConfigManager.getConfiguredChannelList();
+           mNumSelectiveChannelScan++;
         }
         if (freqs != null && (freqs.size() == 0)) {
             freqs = null;
@@ -1814,12 +1815,6 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiRss
         WifiScanner.ScanListener nativeScanListener = new WifiScanner.ScanListener() {
                 // ignore all events since WifiStateMachine is registered for the supplicant events
                 public void onSuccess() {
-                    /* As part of optimizing time for initial scans for
-                     * saved profiles, increment the  scan trigger count
-                     * upon receiving a success.
-                     */
-                    if (mNumSelectiveChannelScan < mMaxInitialSavedChannelScan)
-                        mNumSelectiveChannelScan++;
                 }
                 public void onFailure(int reason, String description) {
                     mIsScanOngoing = false;
