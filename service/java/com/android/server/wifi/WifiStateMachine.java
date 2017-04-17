@@ -4588,6 +4588,7 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiRss
                     mWifiNative.enableTdlsExtControl();
                     mWifiNative.disableScanOffload();
                     mWifiNative.setP2pDisable();
+                    mWifiNative.setPnoScanPlans();
 
                     sendSupplicantConnectionChangedBroadcast(true);
                     transitionTo(mDriverStartedState);
